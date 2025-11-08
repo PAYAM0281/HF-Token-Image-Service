@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  image-gen-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: image-gen-api:latest
+    container_name: image-gen-service
+    runtime: nvidia
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_HOME=/cache/huggingface
+      - MODEL_CACHE_DIR=/models
+      - LOG_LEVEL=INFO
+      - LOG_DIR=/logs
+      - DEFAULT_MODEL_ID=stabilityai/stable-diffusion-xl-base-1.0
+      - TORCH_HOME=/root/.cache/torch
+    ports:
+      - "8000:8000"  # FastAPI
+      - "3000:3000"  # Reflex UI
+    volumes:
+      - models_cache:/models
+      - hf_cache:/cache/huggingface
+      - logs:/logs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  models_cache:
+    name: image_gen_models
+  hf_cache:
+    name: image_gen_hf_cache
+  logs:
+    name: image_gen_logs

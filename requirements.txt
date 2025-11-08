@@ -1,0 +1,16 @@
+reflex==0.8.17
+huggingface-hub
+pillow
+fastapi
+uvicorn
+python-json-logger
+pydantic
+pydantic-settings
+diffusers
+transformers
+safetensors
+accelerate
+torch
+torchaudio
+torchvision
+httpx
